@@ -1,0 +1,63 @@
+# Production-mode stack: ClickHouse + the Canary collector/dashboard.
+#
+# Local development needs none of this — `python -c "import canary; canary.init()"`
+# runs everything in-process on DuckDB. This compose file is for the production
+# path, where the collector runs standalone and writes to ClickHouse.
+#
+#   docker compose up --build
+#   -> dashboard + API on http://localhost:8732
+#
+# NOTE: the ClickHouse store is stubbed in v0.1 (see
+# backend/src/canary_server/store/clickhouse_store.py). Until it's implemented,
+# set CANARY_STORE=duckdb to run the collector against a mounted DuckDB volume.
+
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.3
+    container_name: canary-clickhouse
+    ports:
+      - "8123:8123" # HTTP
+      - "9000:9000" # native
+    environment:
+      CLICKHOUSE_DB: canary
+      CLICKHOUSE_USER: canary
+      CLICKHOUSE_PASSWORD: canary
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8123/ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  canary:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: canary-server
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    ports:
+      - "8732:8732"
+    environment:
+      # Flip to `clickhouse` once the production store is implemented.
+      CANARY_STORE: duckdb
+      CANARY_DB_PATH: /data/canary.duckdb
+      CANARY_HOST: 0.0.0.0
+      CANARY_PORT: "8732"
+      # Set an API key to require X-Canary-Key on ingest.
+      CANARY_API_KEY: ${CANARY_API_KEY:-}
+      # ClickHouse DSN (used when CANARY_STORE=clickhouse).
+      CLICKHOUSE_DSN: clickhouse://canary:canary@clickhouse:9000/canary
+    volumes:
+      - canary-data:/data
+
+volumes:
+  clickhouse-data:
+  canary-data:

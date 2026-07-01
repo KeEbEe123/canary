@@ -16,7 +16,7 @@ _NORMALISERS: list[tuple[re.Pattern[str], str]] = [
                 r"[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"), "<uuid>"),
     (re.compile(r"(/[^/\s]+)+/?"), "<path>"),
     (re.compile(r"'[^']*'|\"[^\"]*\""), "<str>"),
-    (re.compile(r"\b\d+\b"), "<n>"),
+    (re.compile(r"\d+(?:\.\d+)?"), "<n>"),
     (re.compile(r"\s+"), " "),
 ]
 

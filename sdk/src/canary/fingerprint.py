@@ -21,7 +21,7 @@ _NORMALISERS: list[tuple[re.Pattern[str], str]] = [
                 r"[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"), "<uuid>"),
     (re.compile(r"(/[^/\s]+)+/?"), "<path>"),                        # filesystem paths
     (re.compile(r"'[^']*'|\"[^\"]*\""), "<str>"),                  # quoted literals
-    (re.compile(r"\b\d+\b"), "<n>"),                                # bare numbers
+    (re.compile(r"\d+(?:\.\d+)?"), "<n>"),                          # numbers (incl. "12ms", "3.14")
     (re.compile(r"\s+"), " "),                                       # whitespace runs
 ]
 

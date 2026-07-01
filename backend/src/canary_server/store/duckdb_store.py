@@ -202,7 +202,7 @@ class DuckDBStore:
             SELECT r.run_id, r.agent, r.service, r.status, r.start_time, r.end_time,
                    r.duration_ms, r.input,
                    (SELECT count(*) FROM spans s WHERE s.run_id = r.run_id) AS span_count,
-                   (SELECT count(*) FROM spans s WHERE s.run_id = r.run_id AND s.status = 'error') AS error_count,
+                   (SELECT count(*) FROM spans s WHERE s.run_id = r.run_id AND s.error IS NOT NULL) AS error_count,
                    (SELECT coalesce(sum(cost_usd), 0) FROM spans s WHERE s.run_id = r.run_id) AS cost_usd,
                    coalesce(r.error_type, (
                        SELECT s.error_type FROM spans s
@@ -255,7 +255,7 @@ class DuckDBStore:
             duration_ms=root.duration_ms,
             task=root.input,
             span_count=len(spans),
-            error_count=sum(1 for s in spans if s.status == "error"),
+            error_count=sum(1 for s in spans if s.error is not None),
             cost_usd=round(sum((s.attributes or {}).get("cost_usd", 0) or 0 for s in spans), 6),
             error_type=next((s.error["type"] for s in spans if s.error), None),
         )
