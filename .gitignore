@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Canary local data
+*.duckdb
+*.duckdb.wal
+canary.db*
+.canary/
+
+# Node / dashboard
+node_modules/
+dashboard/dist/
+backend/src/canary_server/static/*
+!backend/src/canary_server/static/.gitkeep
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+*.log
