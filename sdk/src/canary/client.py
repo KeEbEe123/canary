@@ -144,7 +144,10 @@ def trace(name: str | Callable[..., Any] | None = None, **run_attrs: Any) -> Any
                     run.set_output(result)
                     return result
                 except BaseException as exc:  # noqa: BLE001 - re-raised below
-                    run.record_error(exc)
+                    # If a child span already captured this failure, don't
+                    # double-count it as a second error group at the run level.
+                    if run.status != "error":
+                        run.record_error(exc)
                     raise
                 finally:
                     client.tracer.end_span(run, tokens)
@@ -161,7 +164,10 @@ def trace(name: str | Callable[..., Any] | None = None, **run_attrs: Any) -> Any
                 run.set_output(result)
                 return result
             except BaseException as exc:  # noqa: BLE001 - re-raised below
-                run.record_error(exc)
+                # If a child span already captured this failure, don't
+                # double-count it as a second error group at the run level.
+                if run.status != "error":
+                    run.record_error(exc)
                 raise
             finally:
                 client.tracer.end_span(run, tokens)

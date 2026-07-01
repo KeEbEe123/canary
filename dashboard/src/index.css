@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens. Dark is the default (and only) theme for v0.1 — a light theme
+   would just flip these variables. Values are HSL channels so Tailwind's
+   hsl(var(--x)) wrapper can add opacity. */
+:root {
+  --bg: 240 10% 4%;          /* near-black page */
+  --surface: 240 6% 8%;      /* cards */
+  --surface-2: 240 5% 12%;   /* raised / hover */
+  --border: 240 5% 18%;
+  --muted: 240 5% 65%;
+  --fg: 240 6% 92%;
+  --accent: 45 93% 58%;      /* canary yellow */
+  --accent-fg: 45 90% 8%;
+  --success: 142 71% 45%;
+  --danger: 0 72% 58%;
+  --warning: 38 92% 55%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background-color: hsl(var(--bg));
+  color: hsl(var(--fg));
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Thin, unobtrusive scrollbars that match the dark theme. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--surface-2));
+}
